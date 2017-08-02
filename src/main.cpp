@@ -11,6 +11,10 @@ const char* ssid     = "openwrt";
 const char* password = "5QYYjVSL";
 
 #include "Arduino.h"
+#include <LiquidCrystal_I2C.h>
+
+// Set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 // Function to connect WiFi
 void connectWifi(const char* ssid, const char* password) {
@@ -38,6 +42,14 @@ void setup()
 {
   // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  // initialize the LCD
+	lcd.begin(16,2);
+
+	// Turn on the blacklight and print a startup message.
+	lcd.backlight();
+	lcd.print("Hello, world!");
+  delay(2000);
+
   if (DEBUG) Serial.begin(115200);  //Start Serial
   connectWifi(ssid, password); // Start WiFi
 }
@@ -55,5 +67,8 @@ void loop()
 
    // wait for a second
   delay(1000);
-  PRINTDEBUG(WiFi.localIP());
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("IP:");
+  lcd.print(WiFi.localIP());
 }
