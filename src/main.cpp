@@ -6,12 +6,20 @@
   }
 
 #include <ESP8266WiFi.h>
+#include <Wire.h>
 
 const char* ssid     = "openwrt";
 const char* password = "5QYYjVSL";
 
 #include "Arduino.h"
 #include <LiquidCrystal_I2C.h>
+
+/*
+D1(Nodemcu) –> SCL(LCD)
+D2(Nodemcu)–> SDA(LCD)
++ve (VU) 5V power supply –> VCC(LCD)
+ground -ve  –> GND(LCD)
+*/
 
 // Set the LCD address to 0x27 for a 16 chars and 2 line display
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -42,8 +50,9 @@ void setup()
 {
   // initialize LED digital pin as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  Wire.begin(D2,D1);
   // initialize the LCD
-	lcd.begin(16,2);
+	lcd.init();
 
 	// Turn on the blacklight and print a startup message.
 	lcd.backlight();
