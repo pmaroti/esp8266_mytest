@@ -5,6 +5,8 @@
     if (DEBUG) Serial.println(STR); \
   }
 
+
+#include <TimeLib.h>
 #include <ESP8266WiFi.h>
 #include <Wire.h>
 
@@ -20,6 +22,9 @@ D2(Nodemcu)–> SDA(LCD)
 +ve (VU) 5V power supply –> VCC(LCD)
 ground -ve  –> GND(LCD)
 */
+
+
+#include <NtpClientLib.h>
 
 // Set the LCD address to 0x27 for a 16 chars and 2 line display
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -43,6 +48,7 @@ void connectWifi(const char* ssid, const char* password) {
   PRINTDEBUG("WiFi connected");
   PRINTDEBUG("IP address: ");
   PRINTDEBUG(WiFi.localIP());
+  NTP.begin("pool.ntp.org",1,true);
 }
 
 
@@ -80,4 +86,6 @@ void loop()
   lcd.setCursor(0,0);
   lcd.print("IP:");
   lcd.print(WiFi.localIP());
+  lcd.setCursor(0,1);
+  lcd.print(NTP.getTimeStr());
 }
