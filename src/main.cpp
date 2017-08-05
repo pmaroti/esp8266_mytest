@@ -26,8 +26,19 @@ ground -ve  –> GND(LCD)
 
 #include <NtpClientLib.h>
 
+
+#include <DHT.h>
+#define DHTTYPE DHT11
+#define DHTPIN  0
+
+String oldTime;
+float oldTemp;
+float oldHumi;
+
 // Set the LCD address to 0x27 for a 16 chars and 2 line display
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+DHT dht(DHTPIN, DHTTYPE, 11); // 11 works fine for ESP826
 
 // Function to connect WiFi
 void connectWifi(const char* ssid, const char* password) {
@@ -71,21 +82,41 @@ void setup()
 
 void loop()
 {
-  // turn the LED on (HIGH is the voltage level)
-  digitalWrite(LED_BUILTIN, HIGH);
+  float temp,humi;
+  String time;
+  
+  delay(200);
+  
 
-  // wait for a second
-  delay(1000);
+  int lc=0;
+  do {
+    if(lc!=0) delay(100);
+    temp = dht.readTemperature();
+    humi = dht.readHumidity();
+    PRINTDEBUG("*");
+    lc++;
+    if(lc>300) { // if no connection with dht more than 30s then reset!
+      ESP.reset();
+    }
+  } while(isnan(temp));
 
-  // turn the LED off by making the voltage LOW
-  digitalWrite(LED_BUILTIN, LOW);
+  time = NTP.getTimeStr();
 
-   // wait for a second
-  delay(1000);
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("IP:");
-  lcd.print(WiFi.localIP());
-  lcd.setCursor(0,1);
-  lcd.print(NTP.getTimeStr());
+  if(time != oldTime || temp != oldTemp || humi != oldHumi) {
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(time);
+
+    lcd.setCursor(0,1);
+    lcd.print(temp);
+    lcd.print("C");
+    lcd.print(" ");
+    lcd.print(humi);
+    lcd.print("%");
+
+    oldTime = time;
+    oldTemp = temp;
+    oldHumi = humi;
+
+  }
 }
