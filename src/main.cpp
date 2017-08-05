@@ -29,6 +29,8 @@ ground -ve  –> GND(LCD)
 
 #include <DHT.h>
 #define DHTTYPE DHT11
+//pin mappgin: http://icircuit.net/wp-content/uploads/2016/08/NodeMCU-to-Arduino-Pin-Mapping.png
+// arduino pin 0 --> D3
 #define DHTPIN  0
 
 String oldTime;
@@ -86,8 +88,8 @@ void loop()
   String time;
   
   delay(200);
-  
 
+  //loop that provide successful temp reading from DHT11
   int lc=0;
   do {
     if(lc!=0) delay(100);
@@ -100,8 +102,10 @@ void loop()
     }
   } while(isnan(temp));
 
+  // accurate time from the INTERNET
   time = NTP.getTimeStr();
 
+  // update LCD only if something is changed...
   if(time != oldTime || temp != oldTemp || humi != oldHumi) {
     lcd.clear();
     lcd.setCursor(0,0);
@@ -114,6 +118,7 @@ void loop()
     lcd.print(humi);
     lcd.print("%");
 
+    // update old values
     oldTime = time;
     oldTemp = temp;
     oldHumi = humi;
